@@ -15,10 +15,12 @@ class PostController extends Controller
     public function index()
     {
         // $posts = Post::where('user_id', auth()->id())->paginate(10);
-        $posts = Post::paginate(10);
-
-        return response()->json([
-            "data" => PostResource::collection($posts)
+        $posts = Post::with('user')->paginate(10);
+        return PostResource::collection($posts)->additional([
+            'meta' => [
+                'api_version' => '1.0',
+                'generated_at' => now()->toIso8601String(),
+            ]
         ]);
     }
     public function store(Request $request)
@@ -52,7 +54,7 @@ class PostController extends Controller
      */
     public function show(string $id)
     {
-        $post = Post::find($id);
+        $post = Post::with('user')->find($id);
         if (!$post) {
             return response()->json([
                 "message" => "post not found"
@@ -63,7 +65,7 @@ class PostController extends Controller
         //         "message" => "Unauthorized"
         //     ], 403);
         // }
-        return response()->json($post);
+        return new PostResource($post);
     }
 
     /**

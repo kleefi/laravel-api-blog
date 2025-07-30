@@ -17,7 +17,20 @@ class PostResource extends JsonResource
         return [
             "id" => $this->id,
             "title" => $this->title,
-            "body" => $this->body
+            "body" => $this->body,
+            "author" => [
+                "name" => $this->user->name,
+                "email" => $this->user->email,
+            ]
+        ];
+    }
+    public function with(Request $request): array
+    {
+        return [
+            'meta' => [
+                'api_version' => '1.0',
+                'generated_at' => now()->toIso8601String(),
+            ]
         ];
     }
 }
