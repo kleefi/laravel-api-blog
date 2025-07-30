@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\PostResource;
+use App\Models\Post;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
@@ -12,15 +14,37 @@ class PostController extends Controller
      */
     public function index()
     {
-        //
-    }
+        // $posts = Post::where('user_id', auth()->id())->paginate(10);
+        $posts = Post::paginate(10);
 
-    /**
-     * Store a newly created resource in storage.
-     */
+        return response()->json([
+            "data" => PostResource::collection($posts)
+        ]);
+    }
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            "title" => "string|required|max:60",
+            "body" => "string|required|min:6",
+        ]);
+
+        if (!$validated) {
+            return response()->json([
+                "status" => false,
+                "message" => $validated
+            ], 422);
+        }
+        $post = Post::create([
+            "title" => $request->title,
+            "body" => $request->body,
+            "user_id" => auth()->id()
+
+        ]);
+        return response()->json([
+            "status" => true,
+            "message" => "post created",
+            "data" => new PostResource($post)
+        ], 201);
     }
 
     /**
@@ -28,7 +52,18 @@ class PostController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $post = Post::find($id);
+        if (!$post) {
+            return response()->json([
+                "message" => "post not found"
+            ], 404);
+        }
+        // if ($post->user_id !== auth()->id()) {
+        //     return response()->json([
+        //         "message" => "Unauthorized"
+        //     ], 403);
+        // }
+        return response()->json($post);
     }
 
     /**
@@ -36,7 +71,26 @@ class PostController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $post = Post::find($id);
+        if (!$post) {
+            return response()->json([
+                'message' => 'Post not found'
+            ], 404);
+        }
+        if ($post->user_id !== auth()->id()) {
+            return response()->json([
+                "message" => "Unauthorized"
+            ], 403);
+        }
+        $validated = $request->validate([
+            "title" => "string|required",
+            "body" => "string|required|min:6"
+        ]);
+        $post->update($validated);
+        return response()->json([
+            "message" => "updated",
+            "data" => new PostResource($post)
+        ]);
     }
 
     /**
@@ -44,6 +98,11 @@ class PostController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $post = Post::find($id);
+        $post->delete();
+        return response()->json([
+            "status" => true,
+            "message" => "post deleted"
+        ], 200);
     }
 }

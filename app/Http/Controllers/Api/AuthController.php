@@ -14,9 +14,9 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'string|required',
-            'email' => 'string|required|email',
-            'password' => 'string|required|min:8',
+            "name" => "string|required",
+            "email" => "string|required|email",
+            "password" => "string|required|min:8",
         ]);
 
         if (!$validated) {
@@ -29,23 +29,23 @@ class AuthController extends Controller
             );
         }
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            "name" => $request->name,
+            "email" => $request->email,
+            "password" => Hash::make($request->password),
         ]);
         return response()->json([
-            'status' => true,
-            'message' => 'user created',
-            'data' => new AuthResource($user)
+            "status" => true,
+            "message" => "user created",
+            "data" => new AuthResource($user)
         ], 201);
     }
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'string|required|email',
-            'password' => 'string|required'
+            "email" => "string|required|email",
+            "password" => "string|required"
         ]);
-        $user = User::where('email', $request->email)->first();
+        $user = User::where("email", $request->email)->first();
         if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json([
                 "status" => false,
@@ -53,7 +53,7 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $token = $user->createToken('api-token')->plainTextToken;
+        $token = $user->createToken("api-token")->plainTextToken;
 
         return response()->json([
             "status" => true,
@@ -70,8 +70,8 @@ class AuthController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
         return response()->json([
-            'status' => true,
-            'message' => 'user logged'
+            "status" => true,
+            "message" => "user logged"
         ], 200);
     }
 }
