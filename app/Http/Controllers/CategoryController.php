@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\CategoryResource;
+use App\Http\Resources\PostResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
 
@@ -45,5 +46,15 @@ class CategoryController extends Controller
         }
         $category->delete();
         return new CategoryResource($category);
+    }
+    public function posts($id)
+    {
+        $category = Category::with('posts.user')->find($id);
+        if (!$category) {
+            return response()->json([
+                "message" => "Category not found"
+            ], 404);
+        }
+        return PostResource::collection($category->posts);
     }
 }

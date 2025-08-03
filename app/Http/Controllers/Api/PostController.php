@@ -39,7 +39,8 @@ class PostController extends Controller
         $post = Post::create([
             "title" => $request->title,
             "body" => $request->body,
-            "user_id" => auth()->id()
+            "user_id" => auth()->id(),
+            "category_id" => $request->category_id
 
         ]);
         return response()->json([
@@ -86,7 +87,8 @@ class PostController extends Controller
         }
         $validated = $request->validate([
             "title" => "string|required",
-            "body" => "string|required|min:6"
+            "body" => "string|required|min:6",
+            "category_id" => "required",
         ]);
         $post->update($validated);
         return response()->json([

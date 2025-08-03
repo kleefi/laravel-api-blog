@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/posts', [PostController::class, 'index']);
+Route::get('/categories/{id}/posts', [CategoryController::class, 'posts']);
 Route::get('/posts/{id}', [PostController::class, 'show']);
 Route::get('/users', [UserController::class, 'index']);
 Route::middleware(['auth:sanctum'])->group(function () {
